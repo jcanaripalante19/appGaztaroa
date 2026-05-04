@@ -1,43 +1,59 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { FlatList, View, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { List, Divider } from 'react-native-paper';
+import { EXCURSIONES } from '../comun/excursiones';
 
-function Calendario({ excursiones, onPress }) {
-  const renderCalendarioItem = ({ item }) => {
+class Calendario extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      excursiones: EXCURSIONES
+    };
+  }
+
+  render() {
+    const { navigation } = this.props;
+
+    const renderCalendarioItem = ({ item }) => {
+      return (
+        <View>
+          <List.Item
+            title={item.nombre}
+            description={item.descripcion}
+            titleNumberOfLines={0}
+            descriptionNumberOfLines={6}
+            left={(props) => (
+              <Image
+                source={require('./imagenes/40Años.png')}
+                style={[props.style, styles.imagen]}
+                resizeMode="cover"
+              />
+            )}
+            titleStyle={styles.titulo}
+            descriptionStyle={styles.descripcion}
+            contentStyle={styles.contenido}
+            onPress={() =>
+              navigation.navigate('DetalleExcursion', {
+                excursionId: item.id
+              })
+            }
+          />
+          <Divider />
+        </View>
+      );
+    };
+
     return (
-      <View>
-        <List.Item
-          title={item.nombre}
-          description={item.descripcion}
-          titleNumberOfLines={0}
-          descriptionNumberOfLines={6}
-          left={(props) => (
-            <Image
-              source={require('./imagenes/40Años.png')}
-              style={[props.style, styles.imagen]}
-              resizeMode="cover"
-            />
-          )}
-          titleStyle={styles.titulo}
-          descriptionStyle={styles.descripcion}
-          contentStyle={styles.contenido}
-          onPress={() => onPress(item.id)}
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={this.state.excursiones}
+          renderItem={renderCalendarioItem}
+          keyExtractor={(item) => item.id.toString()}
         />
-        <Divider />
-      </View>
+      </SafeAreaView>
     );
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={excursiones}
-        renderItem={renderCalendarioItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    </SafeAreaView>
-  );
+  }
 }
 
 const styles = StyleSheet.create({
