@@ -5,6 +5,8 @@ import Constants from 'expo-constants';
 import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
 import Home from './HomeComponent';
+import QuienesSomos from './QuienesSomosComponent';
+import Contacto from './ContactoComponent';
 
 import { EXCURSIONES } from '../comun/excursiones';
 
@@ -38,6 +40,27 @@ class Campobase extends Component {
           component={Home}
           options={{
             title: 'Campo Base',
+          }}
+        />
+      </Stack.Navigator>
+    );
+  };
+
+  QuienesSomosNavegador = () => {
+    return (
+      <Stack.Navigator
+        initialRouteName="QuienesSomos"
+        screenOptions={{
+          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: '#015afc' },
+          headerTitleStyle: { color: '#fff' },
+        }}
+      >
+        <Stack.Screen
+          name="QuienesSomos"
+          component={QuienesSomos}
+          options={{
+            title: 'Quiénes somos',
           }}
         />
       </Stack.Navigator>
@@ -86,6 +109,27 @@ class Campobase extends Component {
     );
   };
 
+  ContactoNavegador = () => {
+    return (
+      <Stack.Navigator
+        initialRouteName="Contacto"
+        screenOptions={{
+          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: '#015afc' },
+          headerTitleStyle: { color: '#fff' },
+        }}
+      >
+        <Stack.Screen
+          name="Contacto"
+          component={Contacto}
+          options={{
+            title: 'Contacto',
+          }}
+        />
+      </Stack.Navigator>
+    );
+  };
+
   DrawerNavegador = () => {
     return (
       <Drawer.Navigator
@@ -102,8 +146,16 @@ class Campobase extends Component {
           component={this.HomeNavegador}
         />
         <Drawer.Screen
+          name="Quienes somos"
+          component={this.QuienesSomosNavegador}
+        />
+        <Drawer.Screen
           name="Calendario"
           component={this.CalendarioNavegador}
+        />
+        <Drawer.Screen
+          name="Contacto"
+          component={this.ContactoNavegador}
         />
       </Drawer.Navigator>
     );
