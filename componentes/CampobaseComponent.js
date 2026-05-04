@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, Platform } from 'react-native';
+import { View, Platform, StyleSheet, Image, Text, Pressable } from 'react-native';
 import Constants from 'expo-constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
@@ -10,12 +11,56 @@ import Contacto from './ContactoComponent';
 
 import { EXCURSIONES } from '../comun/excursiones';
 
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+} from '@react-navigation/drawer';
+
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+
+function BotonMenu(props) {
+  return (
+    <Pressable
+      onPress={props.onPress}
+      hitSlop={8}
+    >
+      <MaterialCommunityIcons
+        name="menu"
+        size={40}
+        color={Platform.OS === 'ios' ? '#015afc' : 'white'}
+      />
+    </Pressable>
+  );
+}
+
+function CustomDrawerContent(props) {
+  return (
+    <DrawerContentScrollView {...props}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+        <View style={styles.drawerHeader}>
+          <View style={styles.drawerHeaderImageContainer}>
+            <Image
+              source={require('./imagenes/logo.png')}
+              style={styles.drawerImage}
+            />
+          </View>
+
+          <View style={styles.drawerHeaderTextContainer}>
+            <Text style={styles.drawerHeaderText}>Gaztaroa</Text>
+          </View>
+        </View>
+
+        <DrawerItemList {...props} />
+      </SafeAreaView>
+    </DrawerContentScrollView>
+  );
+}
 
 class Campobase extends Component {
   constructor(props) {
@@ -24,6 +69,15 @@ class Campobase extends Component {
       excursiones: EXCURSIONES
     };
   }
+
+  menuHeaderOptions = (title, navigation) => ({
+    title,
+    headerLeft: () => (
+      <BotonMenu
+        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+      />
+    ),
+  });
 
   HomeNavegador = () => {
     return (
@@ -38,9 +92,9 @@ class Campobase extends Component {
         <Stack.Screen
           name="Home"
           component={Home}
-          options={{
-            title: 'Campo Base',
-          }}
+          options={({ navigation }) =>
+            this.menuHeaderOptions('Campo Base', navigation)
+          }
         />
       </Stack.Navigator>
     );
@@ -59,9 +113,9 @@ class Campobase extends Component {
         <Stack.Screen
           name="QuienesSomos"
           component={QuienesSomos}
-          options={{
-            title: 'Quiénes somos',
-          }}
+          options={({ navigation }) =>
+            this.menuHeaderOptions('Quiénes somos', navigation)
+          }
         />
       </Stack.Navigator>
     );
@@ -79,9 +133,9 @@ class Campobase extends Component {
       >
         <Stack.Screen
           name="Calendario"
-          options={{
-            title: 'Calendario Gaztaroa',
-          }}
+          options={({ navigation }) =>
+            this.menuHeaderOptions('Calendario Gaztaroa', navigation)
+          }
         >
           {(props) => (
             <Calendario
@@ -122,9 +176,9 @@ class Campobase extends Component {
         <Stack.Screen
           name="Contacto"
           component={Contacto}
-          options={{
-            title: 'Contacto',
-          }}
+          options={({ navigation }) =>
+            this.menuHeaderOptions('Contacto', navigation)
+          }
         />
       </Stack.Navigator>
     );
@@ -134,6 +188,7 @@ class Campobase extends Component {
     return (
       <Drawer.Navigator
         initialRouteName="Campo base"
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           headerShown: false,
           drawerStyle: {
@@ -144,18 +199,57 @@ class Campobase extends Component {
         <Drawer.Screen
           name="Campo base"
           component={this.HomeNavegador}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="home"
+                color={color}
+                size={size}
+              />
+            ),
+          }}
         />
+
         <Drawer.Screen
           name="Quienes somos"
           component={this.QuienesSomosNavegador}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="information"
+                color={color}
+                size={size}
+              />
+            ),
+          }}
         />
+
         <Drawer.Screen
           name="Calendario"
           component={this.CalendarioNavegador}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="calendar"
+                color={color}
+                size={size}
+              />
+            ),
+          }}
         />
+
         <Drawer.Screen
           name="Contacto"
           component={this.ContactoNavegador}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="card-account-phone"
+                color={color}
+                size={size}
+              />
+            ),
+          }}
         />
       </Drawer.Navigator>
     );
@@ -171,5 +265,37 @@ class Campobase extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  drawerHeader: {
+    backgroundColor: '#015afc',
+    height: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  drawerHeaderImageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  drawerHeaderTextContainer: {
+    flex: 2,
+    justifyContent: 'center',
+  },
+  drawerHeaderText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  drawerImage: {
+    width: 80,
+    height: 60,
+    resizeMode: 'contain',
+  },
+});
 
 export default Campobase;
