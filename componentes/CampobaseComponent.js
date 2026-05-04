@@ -9,7 +9,6 @@ import Home from './HomeComponent';
 import QuienesSomos from './QuienesSomosComponent';
 import Contacto from './ContactoComponent';
 
-import { EXCURSIONES } from '../comun/excursiones';
 import { colorGaztaroaOscuro, colorGaztaroaClaro } from '../comun/comun';
 
 import { NavigationContainer, DrawerActions } from '@react-navigation/native';
@@ -22,8 +21,23 @@ import {
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+import { connect } from 'react-redux';
+import {
+  fetchExcursiones,
+  fetchComentarios,
+  fetchCabeceras,
+  fetchActividades,
+} from '../redux/ActionCreators';
+
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+
+const mapDispatchToProps = (dispatch) => ({
+  fetchExcursiones: () => dispatch(fetchExcursiones()),
+  fetchComentarios: () => dispatch(fetchComentarios()),
+  fetchCabeceras: () => dispatch(fetchCabeceras()),
+  fetchActividades: () => dispatch(fetchActividades()),
+});
 
 function BotonMenu(props) {
   return (
@@ -64,11 +78,11 @@ function CustomDrawerContent(props) {
 }
 
 class Campobase extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      excursiones: EXCURSIONES
-    };
+  componentDidMount() {
+    this.props.fetchExcursiones();
+    this.props.fetchComentarios();
+    this.props.fetchCabeceras();
+    this.props.fetchActividades();
   }
 
   menuHeaderOptions = (title, navigation) => ({
@@ -134,32 +148,20 @@ class Campobase extends Component {
       >
         <Stack.Screen
           name="Calendario"
+          component={Calendario}
           options={({ navigation }) =>
             this.menuHeaderOptions('Calendario Gaztaroa', navigation)
           }
-        >
-          {(props) => (
-            <Calendario
-              {...props}
-              excursiones={this.state.excursiones}
-            />
-          )}
-        </Stack.Screen>
+        />
 
         <Stack.Screen
           name="DetalleExcursion"
+          component={DetalleExcursion}
           options={{
             title: 'Detalle Excursión',
             headerBackTitle: 'Calendario',
           }}
-        >
-          {(props) => (
-            <DetalleExcursion
-              {...props}
-              excursiones={this.state.excursiones}
-            />
-          )}
-        </Stack.Screen>
+        />
       </Stack.Navigator>
     );
   };
@@ -299,4 +301,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Campobase;
+export default connect(null, mapDispatchToProps)(Campobase);
