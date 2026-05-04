@@ -1,5 +1,7 @@
+import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Text } from 'react-native-paper';
+import { EXCURSIONES } from '../comun/excursiones';
 
 function RenderExcursion(props) {
   const excursion = props.excursion;
@@ -24,8 +26,26 @@ function RenderExcursion(props) {
   }
 }
 
-function DetalleExcursion(props) {
-  return <RenderExcursion excursion={props.excursion} />;
+class DetalleExcursion extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      excursiones: EXCURSIONES
+    };
+  }
+
+  render() {
+    const { route } = this.props;
+    const excursionId = route.params.excursionId;
+
+    const excursionSeleccionada = this.state.excursiones.filter(
+      (excursion) => excursion.id === excursionId
+    )[0];
+
+    return (
+      <RenderExcursion excursion={excursionSeleccionada} />
+    );
+  }
 }
 
 const styles = StyleSheet.create({
