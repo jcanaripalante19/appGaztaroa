@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Image, StyleSheet, FlatList } from 'react-native';
+import { ScrollView, View, Image, StyleSheet } from 'react-native';
 import { Card, Text, List, Divider } from 'react-native-paper';
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
+import { IndicadorActividad } from './IndicadorActividadComponent';
 
 const mapStateToProps = (state) => {
   return {
@@ -40,8 +41,6 @@ function Historia() {
 
 class QuienesSomos extends Component {
   render() {
-    const actividades = this.props.actividades.actividades;
-
     const renderActividadItem = ({ item }) => {
       return (
         <View>
@@ -72,7 +71,7 @@ class QuienesSomos extends Component {
 
         <Card style={styles.card}>
           <Card.Title
-            title='"Actividades y recursos"'
+            title="Actividades y recursos"
             titleStyle={styles.titulo}
             style={styles.cardTitle}
           />
@@ -80,12 +79,19 @@ class QuienesSomos extends Component {
           <Divider />
 
           <Card.Content>
-            <FlatList
-              data={actividades}
-              renderItem={renderActividadItem}
-              keyExtractor={(item) => item.id.toString()}
-              scrollEnabled={false}
-            />
+            {this.props.actividades.isLoading ? (
+              <IndicadorActividad />
+            ) : this.props.actividades.errMess ? (
+              <View style={styles.errorView}>
+                <Text>{this.props.actividades.errMess}</Text>
+              </View>
+            ) : (
+              this.props.actividades.actividades.map((item) => (
+                <View key={item.id}>
+                  {renderActividadItem({ item })}
+                </View>
+              ))
+            )}
           </Card.Content>
         </Card>
       </ScrollView>
@@ -120,6 +126,10 @@ const styles = StyleSheet.create({
   descripcion: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  errorView: {
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
 
