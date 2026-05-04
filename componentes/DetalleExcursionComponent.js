@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet, ImageBackground, ScrollView, FlatList } from 'react-native';
 import { Card, Text, Divider, IconButton } from 'react-native-paper';
 import { COMENTARIOS } from '../comun/comentarios';
+import { baseUrl } from '../comun/comun';
 
 function RenderExcursion(props) {
   const excursion = props.excursion;
@@ -10,7 +11,7 @@ function RenderExcursion(props) {
     return (
       <Card style={styles.card}>
         <ImageBackground
-          source={require('./imagenes/40Años.png')}
+          source={{ uri: baseUrl + excursion.imagen }}
           style={styles.image}
         >
           <Text style={styles.tituloImagen}>
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'chocolate',
+    color: 'white',
   },
   iconoContainer: {
     alignItems: 'center',
