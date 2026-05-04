@@ -2,18 +2,10 @@ import React, { Component } from 'react';
 import { FlatList, View, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { List, Divider } from 'react-native-paper';
-import { EXCURSIONES } from '../comun/excursiones';
 
 class Calendario extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      excursiones: EXCURSIONES
-    };
-  }
-
   render() {
-    const { navigation } = this.props;
+    const { navigation, excursiones } = this.props;
 
     const renderCalendarioItem = ({ item }) => {
       return (
@@ -47,7 +39,7 @@ class Calendario extends Component {
     return (
       <SafeAreaView style={styles.container}>
         <FlatList
-          data={this.state.excursiones}
+          data={excursiones}
           renderItem={renderCalendarioItem}
           keyExtractor={(item) => item.id.toString()}
         />
