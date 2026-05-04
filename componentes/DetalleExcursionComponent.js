@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ImageBackground, ScrollView, FlatList } from 'react-native';
-import { Card, Text, Divider, IconButton } from 'react-native-paper';
+import { View, StyleSheet, ImageBackground, ScrollView, FlatList, Modal } from 'react-native';
+import { Card, Text, Divider, IconButton, Button, TextInput } from 'react-native-paper';
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
-import { postFavorito } from '../redux/ActionCreators';
+import { postFavorito, postComentario } from '../redux/ActionCreators';
 
 const mapStateToProps = (state) => {
   return {
@@ -15,6 +15,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
   postFavorito: (excursionId) => dispatch(postFavorito(excursionId)),
+  postComentario: (excursionId, valoracion, autor, comentario) =>
+    dispatch(postComentario(excursionId, valoracion, autor, comentario)),
 });
 
 function RenderExcursion(props) {
@@ -38,15 +40,21 @@ function RenderExcursion(props) {
           </Text>
         </Card.Content>
 
-        <View style={styles.iconoContainer}>
+        <View style={styles.iconosContainer}>
           <IconButton
             icon={props.favorita ? 'heart' : 'heart-outline'}
             size={28}
             onPress={() =>
               props.favorita
                 ? console.log('La excursión ya se encuentra entre las favoritas')
-                : props.onPress()
+                : props.onPressFavorito()
             }
+          />
+
+          <IconButton
+            icon="pencil"
+            size={28}
+            onPress={props.onPressComentario}
           />
         </View>
       </Card>
@@ -101,8 +109,45 @@ function RenderComentario(props) {
 }
 
 class DetalleExcursion extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      valoracion: 5,
+      autor: '',
+      comentario: '',
+      showModal: false,
+    };
+  }
+
   marcarFavorito(excursionId) {
     this.props.postFavorito(excursionId);
+  }
+
+  toggleModal() {
+    this.setState({
+      showModal: !this.state.showModal,
+    });
+  }
+
+  resetForm() {
+    this.setState({
+      valoracion: 3,
+      autor: '',
+      comentario: '',
+      showModal: false,
+    });
+  }
+
+  gestionarComentario(excursionId) {
+    this.props.postComentario(
+      excursionId,
+      this.state.valoracion,
+      this.state.autor,
+      this.state.comentario
+    );
+
+    this.resetForm();
   }
 
   render() {
@@ -122,8 +167,92 @@ class DetalleExcursion extends Component {
         <RenderExcursion
           excursion={excursionSeleccionada}
           favorita={this.props.favoritos.favoritos.some((el) => el === excursionId)}
-          onPress={() => this.marcarFavorito(excursionId)}
+          onPressFavorito={() => this.marcarFavorito(excursionId)}
+          onPressComentario={() => this.toggleModal()}
         />
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showModal}
+          onRequestClose={() => this.toggleModal()}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitulo}>
+              Añadir comentario
+            </Text>
+
+            <View style={styles.valoracionContainer}>
+              <IconButton
+                icon={this.state.valoracion >= 1 ? 'star' : 'star-outline'}
+                size={28}
+                onPress={() => this.setState({ valoracion: 1 })}
+              />
+
+              <IconButton
+                icon={this.state.valoracion >= 2 ? 'star' : 'star-outline'}
+                size={28}
+                onPress={() => this.setState({ valoracion: 2 })}
+              />
+
+              <IconButton
+                icon={this.state.valoracion >= 3 ? 'star' : 'star-outline'}
+                size={28}
+                onPress={() => this.setState({ valoracion: 3 })}
+              />
+
+              <IconButton
+                icon={this.state.valoracion >= 4 ? 'star' : 'star-outline'}
+                size={28}
+                onPress={() => this.setState({ valoracion: 4 })}
+              />
+
+              <IconButton
+                icon={this.state.valoracion >= 5 ? 'star' : 'star-outline'}
+                size={28}
+                onPress={() => this.setState({ valoracion: 5 })}
+              />
+            </View>
+
+            <Text style={styles.valoracionTexto}>
+              {this.state.valoracion} estrellas
+            </Text>
+
+            <TextInput
+              label="Autor"
+              value={this.state.autor}
+              onChangeText={(autor) => this.setState({ autor: autor })}
+              mode="outlined"
+              style={styles.input}
+              left={<TextInput.Icon icon="account" />}
+            />
+
+            <TextInput
+              label="Comentario"
+              value={this.state.comentario}
+              onChangeText={(comentario) => this.setState({ comentario: comentario })}
+              mode="outlined"
+              style={styles.input}
+              left={<TextInput.Icon icon="comment" />}
+            />
+
+            <View style={styles.botonesModal}>
+              <Button
+                mode="outlined"
+                onPress={() => this.resetForm()}
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                mode="contained"
+                onPress={() => this.gestionarComentario(excursionId)}
+              >
+                Enviar
+              </Button>
+            </View>
+          </View>
+        </Modal>
 
         <RenderComentario
           comentarios={comentariosExcursion}
@@ -151,8 +280,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
-  iconoContainer: {
-    alignItems: 'center',
+  iconosContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 8,
   },
   tituloComentario: {
@@ -165,6 +295,34 @@ const styles = StyleSheet.create({
   comentarioAutor: {
     marginTop: 4,
     marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  modalTitulo: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  valoracionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  valoracionTexto: {
+    textAlign: 'center',
+    marginBottom: 20,
+    fontWeight: 'bold',
+  },
+  input: {
+    marginBottom: 15,
+  },
+  botonesModal: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
   },
 });
 
